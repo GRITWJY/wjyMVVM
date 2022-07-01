@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <!-- vue中的原用法 -->
+
+  <body>
+    <div id="app">
+      <div>
+        <div>
+          <div>{{ name }} - {{ message }}</div>
+        </div>
+      </div>
+      <p>{{ name }}</p>
+      <p>{{ message }}</p>
+    </div>
+    <script>
+      // todo: 最开始, 县实现一个简单的功能: 实现 数据的填充
+      // 即将 data 中数据放置到 模板中对应的 {{content}}里面
+      // 1. 拿到模板: #app
+      let tmpNode = document.querySelector("#app");
+      // 2. 拿到数据: data
+      let data = {
+        name: "wjygrit",
+        message: "实现 数据的填充",
+      };
+      // 3. 将模板与数据结合, 得到的是 HTML 元素 (DOM元素
+      // todo: 关键点就是如何处理复杂的DOM结构
+      // 一般都是使用递归
+      // 现在的情况, template 是DOM元素
+      // 但在源码中, 它是由 DOM -> 模板字符串 -> VNode -> 真正的DOM
+      // 我们这里就先不考虑这么多的转换, 先用DOM元素把最基本的元素内容替换后再去
+      // 思考为什么源码要那样做
+      function compiler(template, data) {
+        // 判断子元素是否是文本节点
+        // debugger;
+        let childNodes = template.childNodes;
+        for (let i = 0; i < childNodes.length; i++) {
+          // todo: 判断什么呢?这里先打个断点看看 #app下所有的内容
+          /* 可以看到,我们现在的案例中, {{}} 是在text标签下的,那么我们就可以递归去找
+            text标签,然后拿到 {{}} 这个后,再来进行处理
+            * text
+                data: "{{ message }}"
+                length: 13
+                nodeName: "#text"
+                nodeType: 3
+                nodeValue: "{{ message }}"
+            * */
+
+          let type = childNodes[i].nodeType;
+          debugger;
+          if (type === 3) {
+            // 文本
+            let txt = childNodes[i].nodeValue; // 获取到内容
+            console.log(txt);
+            let reg = /\{\{(.+?)\}\}/g;
+            console.log(txt);
+            // todo: 处理模板字符串内容
+            // 获取到{{}}里的内容的正则表达式: /\{\{(.+?)\}\}/g
+            // 然后拿到这个值后就基本上可以去 data中用类似这种data['name']形式去获取值
+            // 然后这里可以用replace来替换
+            txt = txt.replace(reg, function (_, g) {
+              console.log(g);
+              let key = g.trim();
+              let value = data[key];
+              return value;
+            });
+            childNodes[i].nodeValue = txt;
+          } else {
+            // todo: 什么时候递归下一个呢?
+            // 在nodeType 里, 为1的话表示元素, 即当 nodeType = 1 时,我们递归
+            compiler(childNodes[i], data);
+          }
+        }
+      }
+      // compiler(tmpNode, data);
+
+      // 4. 放到页面中
+      compiler(tmpNode, data);
+    </script>
+  </body>
+</html>
