@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>封装成构造函数</title>
+  </head>
+  <body>
+    <div id="app">
+      <div>
+        <div>
+          <div>{{ name }} - {{ message }}</div>
+        </div>
+      </div>
+      <p>{{ name }}</p>
+      <p>{{ message }}</p>
+    </div>
+    <script>
+      // 构造函数
+      function WJYVue(options) {
+        // vue 中 内部数据 使用_开头, 只读数据使用 $ 开头
+        this._data = options.data;
+        this._el = options.el;
+
+        // 准备工作(获得模板)
+        this.$el = this._template = document.querySelector(this._el);
+        // 用于update 更新页面
+        this._parent = this._template.parentNode;
+
+        // 渲染
+        this.render();
+      }
+
+      /** 将模板结合数据得到HTML加到页面中 */
+      WJYVue.prototype.render = function () {
+        this.compiler();
+      };
+
+      /** 编译, 将模板与数据结合得到真正的DOM元素 */
+      WJYVue.prototype.compiler = function () {
+        let realHTMLDOM = this._template.cloneNode(true); // 用模板拷贝得到一个DOM
+        compiler(realHTMLDOM, this._data);
+        // 调用update将编译好的放到页面中
+        this.update(realHTMLDOM);
+      };
+
+      function compiler(template, data) {
+        // 判断子元素是否是文本节点
+        // debugger;
+        let childNodes = template.childNodes;
+        for (let i = 0; i < childNodes.length; i++) {
+          /**判断什么呢?这里先打个断点看看 #app下所有的内容**/
+          /* 可以看到,我们现在的案例中, {{}} 是在text标签下的,那么我们就可以递归去找
+                  text标签,然后拿到 {{}} 这个后,再来进行处理
+                  * text
+                      data: "{{ message }}"
+                      length: 13
+                      nodeName: "#text"
+                      nodeType: 3
+                      nodeValue: "{{ message }}"
+                  * */
+
+          let type = childNodes[i].nodeType;
+          // debugger;
+          if (type === 3) {
+            // 文本
+            let txt = childNodes[i].nodeValue; // 获取到内容
+            // console.log(txt);
+            let reg = /\{\{(.+?)\}\}/g;
+            /** 处理模板字符串内容**/
+            // 获取到{{}}里的内容的正则表达式: /\{\{(.+?)\}\}/g
+            // 然后拿到这个值后就基本上可以去 data中用类似这种data['name']形式去获取值
+            // 然后这里可以用replace来替换
+            txt = txt.replace(reg, function (_, g) {
+              console.log(g);
+              let key = g.trim();
+              let value = data[key];
+              return value;
+            });
+            childNodes[i].nodeValue = txt;
+          } else {
+            /** 什么时候递归下一个呢?**/
+            // 在nodeType 里, 为1的话表示元素, 即当 nodeType = 1 时,我们递归
+            compiler(childNodes[i], data);
+          }
+        }
+      }
+
+      /** 更新, 将DOM元素 放到页面中 */
+      WJYVue.prototype.update = function (real) {
+        // 替换到页面当中
+        this._parent.replaceChild(real, document.querySelector(this._el));
+      };
+
+      /**用法*/
+      let app = new WJYVue({
+        el: "#app",
+        data: {
+          name: "wjygrit",
+          message: "实现 数据的填充",
+        },
+      });
+    </script>
+  </body>
+</html>
