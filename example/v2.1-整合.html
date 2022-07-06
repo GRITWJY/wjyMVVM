@@ -7,8 +7,10 @@
   <body>
     <div id="app">
       <div class="c1">
-        <div class="c2">{{ name }} - {{ firstname }}</div>
-        <div>{{ firstname }}</div>
+        <div>{{ course[0].name }}</div>
+        <div>{{ course[1].name }}</div>
+        <div>{{ course[2].name }}</div>
+        <div class="c2">{{ name }} - {{ age }}</div>
         <div>hello3</div>
         <ul>
           <li>1</li>
@@ -19,6 +21,92 @@
     </div>
 
     <script>
+      /*使用的是Object.defineProperty*/
+      // 备份 数组 原型对象
+      const arrayProto = Array.prototype;
+      // 通过继承的方式 创建新的 arrayMethdos
+      // 原理
+      // let arr = []
+      // arr -> Array.prototype -> Object.prototype
+      // arr -> 改写的方法  -> Array.prototype -> Object.prototype
+      const arrayMethods = Object.create(arrayProto);
+
+      // 操作数组的七个方法，这七个方法可以改变数组自身
+      const methodsToPatch = [
+        "push",
+        "pop",
+        "shift",
+        "unshift",
+        "splice",
+        "sort",
+        "reverse",
+      ];
+      // 改写原型方法
+      methodsToPatch.forEach(function (method) {
+        // 缓存原生方法,比如Push
+        const original = arrayProto[method];
+        arrayMethods[method] = function (...args) {
+          // 执行原生方法
+          const result = original.apply(this, args);
+          console.log(`调用了${method}的拦截方法`);
+          let inserted;
+          switch (method) {
+            case "push":
+            case "unshift":
+              inserted = args;
+              break;
+            case "splice":
+              inserted = args.slice(2);
+              break;
+          }
+          // 对参数每个原型进行响应式
+          for (let i = 0; i < inserted.length; i++) {
+            reactify(inserted[i]);
+          }
+          // 调用原来的方法
+          return result;
+        };
+      });
+
+      function defineReactive(data, key, val) {
+        if (typeof val === "object" && val != null && !Array.isArray(val)) {
+          reactify(val);
+        }
+        Object.defineProperty(data, key, {
+          configurable: true,
+          enumerable: true,
+          get() {
+            console.log(`读取${key}属性的`);
+            return val;
+          },
+          set(newVal) {
+            if (newVal === val) {
+              return;
+            }
+            console.log(`设置${key}的属性值为${newVal}`);
+            val = newVal;
+          },
+        });
+      }
+
+      function reactify(obj, vm) {
+        let keys = Object.keys(obj);
+        for (let i = 0; i < keys.length; i++) {
+          let key = keys[i];
+          let val = obj[key];
+          // 如果是数组
+          if (Array.isArray(val)) {
+            val.__proto__ = arrayMethods;
+            for (let j = 0; j < val.length; j++) {
+              reactify(val[j], vm);
+            }
+          } else {
+            defineReactive.call(vm, obj, key, val);
+          }
+        }
+      }
+
+      // 虚拟DOM
       class VNode {
         constructor(tag, data, value, type) {
           this.tag = tag && tag.toLowerCase();
@@ -44,18 +132,21 @@
        * 即柯里化保存一部分的内容, 剩下的函数可以调用这部分保存的内容
        * */
 
+      // 构造函数
       function WJYVue(options) {
         this._data = options.data;
         this._el = options.el;
         let elm = document.querySelector(options.el); // vue是字符串，这里是DOM
         this._template = elm;
         this._parent = elm.parentNode;
+        console.log(this._data);
 
-        this.mout(); // 挂载
+        reactify(this._data, this);
+        this.mount(); // 挂载
       }
 
       // 挂载方法
-      WJYVue.prototype.mout = function () {
+      WJYVue.prototype.mount = function () {
         // render: 生成虚拟DOM, 即上面说的 保存
         // 调用它时,利用抽象语法树和数据结合生成虚拟DOM
         this.render = this.createRenderFn();
@@ -101,6 +192,7 @@
         this._parent.replaceChild(realDOM, document.querySelector(this._el));
       };
 
+      // 生成虚拟带有{{}}的DOM, 相当于AST
       function generateVNode(node) {
         let nodeType = node.nodeType;
         let _vnode = null;
@@ -155,13 +247,21 @@
       function getValueByPath(obj, path) {
         let paths = path.split("."); //[xxx,yyy]
         let res = obj;
+
         for (let i = 0; i < paths.length; i++) {
-          let prop = paths[i];
-          res = res[prop];
+          let prop, arr;
+          if ((arr = /(.+?)\[(.+?)\]/g.exec(paths[i]))) {
+            res = res[arr[1]][arr[2]];
+            console.log(res);
+          } else {
+            prop = paths[i];
+            res = res[prop];
+          }
         }
         return res;
       }
 
+      /* 根据有数据的虚拟DOM, 转成真实DOM */
       function parseVNode(vnode) {
         // 创建真实DOM
         let type = vnode.type;
@@ -190,8 +290,9 @@
       let app = new WJYVue({
         el: "#app",
         data: {
-          name: "wjy",
-          firstname: "grit",
+          name: "张三",
+          age: 19,
+          course: [{ name: "fadsf" }, { name: "134" }, { name: "faqfaf" }],
         },
       });
     </script>
