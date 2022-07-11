@@ -14,7 +14,9 @@ WJYVue.prototype.moutComponent = function () {
     // 这里是一个函数，函数的this默认是全局对象
     this.update(this.render());
   };
-  mount.call(this); // 交给watcher调用的,先留着的
+
+  // 这个 watcher 就是全局的 Watcher, 在任何一个地方都可以访问
+  Dep.target = new Watcher(this, mount); // 每次更新都会调用这个mount方法
 };
 
 /**

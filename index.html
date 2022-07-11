@@ -19,13 +19,19 @@
         </ul>
       </div>
     </div>
-
+    <script src="./src/watcher.js"></script>
+    <script src="./src/Dep.js"></script>
     <script src="./src/vnode.js"></script>
     <script src="./src/compiler.js"></script>
     <script src="./src/wjyvue.js"></script>
     <script src="./src/initrender.js"></script>
     <script src="./src/initdata.js"></script>
     <script>
+      // 引入 watcher
+      // 问题: 解决this问题, 数组值更新时, 无法获取到vue的实例
+      // 1. 只考虑修改后刷新 (响应式)
+      // 2. 再考虑依赖收集 (优化)
+
       let app = new WJYVue({
         el: "#app",
         data: {

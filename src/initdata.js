@@ -45,15 +45,17 @@ methodsToPatch.forEach(function (method) {
 });
 
 function defineReactive(data, key, val) {
-  let that = this;
-  console.log(data, key);
   if (typeof val === "object" && val != null) {
-    observe(val, that);
+    observe(val);
   }
+
+  let dep = new Dep();
+
   Object.defineProperty(data, key, {
     configurable: true,
     enumerable: true,
     get() {
+      // todo: 收集依赖
       return val;
     },
     set(newVal) {
@@ -62,12 +64,12 @@ function defineReactive(data, key, val) {
       }
       // 数据变成响应式
       if (typeof newVal === "object" && newVal != null) {
-        observe(newVal, that); // todo: 引入watcher后解决
+        observe(newVal);
       }
       val = newVal;
 
-      // 模板更新
-      that.moutComponent();
+      // 派发更新, 找到全局的 watcher, 调用 update
+      dep.notify();
     },
   });
 }
@@ -87,20 +89,20 @@ function proxy(target, prop, key) {
 }
 
 /**将对象 o 变成响应式的, vm 就是vue实例,为了在调用时处理上下文**/
-function observe(obj, vm) {
+function observe(obj) {
   // 之前没有对o本身进行操作，这一次就直接对Obj进行判断
   if (Array.isArray(obj)) {
     // 对每一个元素处理
     obj.__proto__ = arrayMethods;
     for (let i = 0; i < obj.length; i++) {
-      observe(obj[i], vm); // 对每个成员进行响应式处理
+      observe(obj[i]); // 对每个成员进行响应式处理
     }
   } else {
     // 对每个对象成员进行处理
     let keys = Object.keys(obj);
     for (let i = 0; i < keys.length; i++) {
       let prop = keys[i];
-      defineReactive.call(vm, obj, prop, obj[prop]);
+      defineReactive(obj, prop, obj[prop]);
     }
   }
 }
@@ -109,7 +111,7 @@ WJYVue.prototype.initData = function () {
   // 遍历 this._data的成员，将 属性转换为响应式的，将 直接属性，代理到实例上
   let keys = Object.keys(this._data);
   // 响应式化
-  observe(this._data, this);
+  observe(this._data);
   // 代理
   for (const element of keys) {
     proxy(this, "_data", element);
