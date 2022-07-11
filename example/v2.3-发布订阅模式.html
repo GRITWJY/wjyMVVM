@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <script>
+      /**
+       * todo:发布订阅模式
+       *
+       * 目标: 解耦, 让各个模块之间没有紧密的联系
+       * 现在的处理办法是 属性在更新的时候, 调用 mountComponent
+       * 问题:  现在更新的是更新全部的页面
+       *
+       * 在 vue 中, 整个的更新时按照组件为单位进行 判断, 以节点为单位进行更新
+       * 如果代码中没有自定义组件, 那么在比较算法的时候, 我们会将全部的模块 对应 的 虚拟DOM 进行比较
+       * 如果代码中含有自定义组件, 那么在比较算法的时候, 就会判断更新的是哪些组件中的属性,只会判断更新数据的组件,其他组件不会更新
+       *
+       *
+       *
+       * 1. 中间的全局的容器, 用来存储可以被触发的东西(函数, 对象)
+       * 2. 需要一个方法, 可以往容器中传入东西(函数,对象)
+       * 3. 需要一个方法, 可以将容器中的东西取出来  使用(函数调用,对象方法调用)
+       *
+       * Vue模型
+       *
+       *
+       *
+       */
+
+      var event = (function () {
+        eventObjs = {};
+        return {
+          on: function (type, handler) {
+            // 如果eventObjs[type]有值, 就用这个值
+            // 否则默认为空数组
+            (eventObjs[type] || (eventObjs[type] = [])).push(handler);
+          },
+          /* 移除事件，不带参数，移除所有时间，
+            如果带有事件名参数，就移除事件名下的所有事件
+            两个参数，那么就是表示移除某一个事件的具体函数
+         */
+          off: function (type, handler) {
+            if (arguments.length === 0) {
+              eventObjs = {};
+            } else if (arguments.length === 1) {
+              eventObjs[type] = [];
+            } else if (arguments.length === 2) {
+              let _events = eventObjs[type];
+              if (!_events) return;
+              for (let i = _events.length - 1; i >= 0; i--) {
+                // 倒着循环 数组的序号不会受到影响
+                if (_events[i] === handler) {
+                  _events.splice(i, 1);
+                }
+              }
+            }
+          },
+          emit: function (type) {
+            let args = Array.prototype.slice.call(arguments, 1);
+            let _events = eventObjs[type];
+            if (!_events) return;
+            for (let i = 0; i < _events.length; i++) {
+              _events[i](args);
+            }
+          },
+        };
+      })();
+
+      event.on("click", () => {
+        console.log("click事件-1");
+      });
+      event.on("click", () => {
+        console.log("click事件-2");
+      });
+      event.on("click2", () => {
+        console.log("click2事件-1");
+      });
+      event.emit("click");
+    </script>
+  </body>
+</html>
