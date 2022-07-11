@@ -36,8 +36,8 @@ methodsToPatch.forEach(function (method) {
         break;
     }
     // 对参数每个原型进行响应式
-    for (let i = 0; i < inserted.length; i++) {
-      reactify(inserted[i]);
+    for (const element of inserted) {
+      observe(element);
     }
     // 调用原来的方法
     return result;
@@ -45,8 +45,9 @@ methodsToPatch.forEach(function (method) {
 });
 
 function defineReactive(data, key, val) {
+  let that = this;
   if (typeof val === "object" && val != null && !Array.isArray(val)) {
-    reactify(val);
+    observe(val);
   }
   Object.defineProperty(data, key, {
     configurable: true,
@@ -60,11 +61,14 @@ function defineReactive(data, key, val) {
         return;
       }
       console.log(`设置${key}的属性值为${newVal}`);
+      // 数据变成响应式
       if (typeof newVal === "object" && newVal != null) {
-        val = reactify(newVal);
-      } else {
-        val = newVal;
+        observe(newVal); // todo: 引入watcher后解决
       }
+      val = newVal;
+
+      // 模板更新
+      that.moutComponent();
     },
   });
 }
@@ -83,52 +87,32 @@ function proxy(target, prop, key) {
   });
 }
 
-function reactify(obj, vm) {
-  let keys = Object.keys(obj);
-  for (let i = 0; i < keys.length; i++) {
-    let key = keys[i];
-    let val = obj[key];
-    // 如果是数组
-    if (Array.isArray(val)) {
-      val.__proto__ = arrayMethods;
-      for (let j = 0; j < val.length; j++) {
-        reactify(val[j], vm);
-      }
-    } else {
-      defineReactive.call(vm, obj, key, val);
+/**将对象 o 变成响应式的, vm 就是vue实例,为了在调用时处理上下文**/
+function observe(obj, vm) {
+  // 之前没有对o本身进行操作，这一次就直接对Obj进行判断
+  if (Array.isArray(obj)) {
+    // 对每一个元素处理
+    obj.__proto__ = arrayMethods;
+    for (let i = 0; i < obj.length; i++) {
+      observe(obj[i], vm); // 对每个成员进行响应式处理
+    }
+  } else {
+    // 对每个对象成员进行处理
+    let keys = Object.keys(obj);
+    for (let i = 0; i < keys.length; i++) {
+      let prop = keys[i];
+      defineReactive.call(vm, obj, prop, obj[prop]);
     }
   }
-  // 只需要在这里添加代理即可(问题：在这里写的代码是会递归的)
-  // 如果在这里将属性映射到Vue实例上，那么久表示Vue实例可以使用属性
-  //{ 后面的name会把前面的name覆盖掉
-  //  data: { name: ..., children: {name: 'jim'}}
-  //}
-
-  // todo: 提供一个Observer 方法, 在方法中, 对属性进行处理
-  // 将方法封装到initData中
 }
 
 WJYVue.prototype.initData = function () {
   // 遍历 this._data的成员，将 属性转换为响应式的，将 直接属性，代理到实例上
   let keys = Object.keys(this._data);
   // 响应式化
-  for (let i = 0; i < keys.length; i++) {
-    // 这里将对象 this._data[keys[i]] 编程响应式的
-    reactify(this._data, this);
-  }
+  observe(this._data, this);
   // 代理
-  for (let i = 0; i < keys.length; i++) {
-    // 将this._data[keys[i]] 映射到this[keys[i]]
-    // Object.defineProperty(this, keys[i], {
-    //   enumerable: true,
-    //   configurable: true,
-    //   get() {
-    //     return this._data[keys[i]];
-    //   },
-    //   set(nv) {
-    //     this._data[key[i]] = nv;
-    //   },
-    // });
-    proxy(this, "_data", keys[i]);
+  for (const element of keys) {
+    proxy(this, "_data", element);
   }
 };
