@@ -11,6 +11,8 @@
 
 */
 
+let watcherid = 0;
+
 class Watcher {
   /**
    * @param vm {Object} WJYVue 实例
@@ -21,6 +23,7 @@ class Watcher {
     this.vm = vm;
     this.getter = expOrfn;
 
+    this.id = watcherid++;
     this.deps = []; // 依赖项
     this.depIds = {}; // 是一个 Set 类型, 用于保证 依赖项的唯一性 ( 简化的代码暂时不实现这一块 )
 
@@ -30,7 +33,9 @@ class Watcher {
 
   /** 计算, 触发 getter */
   get() {
+    pushTarget(this);
     this.getter.call(this.vm, this.vm); // 上下文的问题就解决了
+    popTarget();
   }
   /**
    * 执行, 并判断是懒加载, 还是同步执行, 还是异步执行:
@@ -48,4 +53,9 @@ class Watcher {
 
   /** 清空依赖队列 */
   cleanupDep() {}
+
+  /**将当前的 dep 与 当前的 watcher 关联*/
+  addDep(dep) {
+    this.deps.push(dep);
+  }
 }

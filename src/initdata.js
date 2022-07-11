@@ -50,12 +50,14 @@ function defineReactive(data, key, val) {
   }
 
   let dep = new Dep();
+  dep.__$propName__ = key;
 
   Object.defineProperty(data, key, {
     configurable: true,
     enumerable: true,
     get() {
-      // todo: 收集依赖
+      //
+      dep.depend();
       return val;
     },
     set(newVal) {

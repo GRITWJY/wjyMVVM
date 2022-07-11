@@ -16,7 +16,7 @@ WJYVue.prototype.moutComponent = function () {
   };
 
   // 这个 watcher 就是全局的 Watcher, 在任何一个地方都可以访问
-  Dep.target = new Watcher(this, mount); // 每次更新都会调用这个mount方法
+  new Watcher(this, mount); // 每次更新都会调用这个mount方法
 };
 
 /**
