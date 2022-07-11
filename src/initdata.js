@@ -37,7 +37,7 @@ methodsToPatch.forEach(function (method) {
     }
     // 对参数每个原型进行响应式
     for (const element of inserted) {
-      observe(element);
+      observe(element); // todo: 差个this
     }
     // 调用原来的方法
     return result;
@@ -46,24 +46,23 @@ methodsToPatch.forEach(function (method) {
 
 function defineReactive(data, key, val) {
   let that = this;
-  if (typeof val === "object" && val != null && !Array.isArray(val)) {
-    observe(val);
+  console.log(data, key);
+  if (typeof val === "object" && val != null) {
+    observe(val, that);
   }
   Object.defineProperty(data, key, {
     configurable: true,
     enumerable: true,
     get() {
-      console.log(`读取${key}属性的`);
       return val;
     },
     set(newVal) {
       if (newVal === val) {
         return;
       }
-      console.log(`设置${key}的属性值为${newVal}`);
       // 数据变成响应式
       if (typeof newVal === "object" && newVal != null) {
-        observe(newVal); // todo: 引入watcher后解决
+        observe(newVal, that); // todo: 引入watcher后解决
       }
       val = newVal;
 

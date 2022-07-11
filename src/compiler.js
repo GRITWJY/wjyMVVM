@@ -58,7 +58,7 @@ function getValueByPath(obj, path) {
     let prop, arr;
     if ((arr = /(.+?)\[(.+?)\]/g.exec(paths[i]))) {
       res = res[arr[1]][arr[2]];
-      console.log(res);
+      // console.log(res);
     } else {
       prop = paths[i];
       res = res[prop];
