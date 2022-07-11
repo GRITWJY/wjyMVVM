@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="c1">
+        <div>{{ course[0].name }}</div>
+        <div>{{ course[1].name }}</div>
+        <div>{{ course[2].name }}</div>
+        <div class="c2">{{ name }} - {{ age }}</div>
+        <div>hello3</div>
+        <ul>
+          <li>1</li>
+          <li>2</li>
+          <li>3</li>
+        </ul>
+      </div>
+    </div>
+
+    <script src="./src/vnode.js"></script>
+    <script src="./src/compiler.js"></script>
+    <script src="./src/wjyvue.js"></script>
+    <script src="./src/initrender.js"></script>
+    <script src="./src/initdata.js"></script>
+    <script>
+      let app = new WJYVue({
+        el: "#app",
+        data: {
+          name: "张三",
+          age: 19,
+          course: [{ name: "fadsf" }, { name: "134" }, { name: "faqfaf" }],
+        },
+      });
+    </script>
+  </body>
+</html>
