@@ -1,5 +1,7 @@
+import VNode from "./vnode.js";
+
 // 生成虚拟带有{{}}的DOM, 相当于AST
-function generateVNode(node) {
+export function generateVNode(node) {
   let nodeType = node.nodeType;
   let _vnode = null;
   if (nodeType === 1) {
@@ -24,7 +26,7 @@ function generateVNode(node) {
 }
 
 /*将带有坑的vnode与数据data结合，得到填充数据的vnode*/
-function combine(vnode, data) {
+export function combine(vnode, data) {
   let _type = vnode.type;
   let _data = vnode.data;
   let _value = vnode.value;
@@ -50,7 +52,7 @@ function combine(vnode, data) {
 }
 
 /*根据路径访问对象成员*/
-function getValueByPath(obj, path) {
+export function getValueByPath(obj, path) {
   let paths = path.split("."); //[xxx,yyy]
   let res = obj;
 
@@ -68,7 +70,7 @@ function getValueByPath(obj, path) {
 }
 
 /* 根据有数据的虚拟DOM, 转成真实DOM */
-function parseVNode(vnode) {
+export function parseVNode(vnode) {
   // 创建真实DOM
   let type = vnode.type;
   let _node = null;

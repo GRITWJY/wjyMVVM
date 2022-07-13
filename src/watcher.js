@@ -11,9 +11,11 @@
 
 */
 
+import { pushTarget, popTarget } from "./Dep.js";
+
 let watcherid = 0;
 
-class Watcher {
+export default class Watcher {
   /**
    * @param vm {Object} WJYVue 实例
    * @param expOrFn {String | Function} 如果是渲染 watcher, 传入的就是函数,

@@ -2,44 +2,106 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Title</title>
+    <title>index2</title>
   </head>
   <body>
     <div id="app">
-      <div class="c1">
-        <div>{{ course[0].name }}</div>
-        <div>{{ course[1].name }}</div>
-        <div>{{ course[2].name }}</div>
-        <div class="c2">{{ name }} - {{ age }}</div>
-        <div>hello3</div>
-        <ul>
-          <li>1</li>
-          <li>2</li>
-          <li>3</li>
-        </ul>
+      <h3>数据响应式更新 原理</h3>
+      <div>{{t}}</div>
+      <div>{{t1}}</div>
+      <div>{{arr}}</div>
+
+      <h3>Method + 事件 + 数据响应式更新 原理</h3>
+      <div>
+        <p>{{counter}}</p>
+        <button v-on:click="handleAdd">Add</button>
+        <button v-on:click="handleMinus">Minus</button>
+      </div>
+      <h3>v-bind</h3>
+      <span v-bind:title="title">右键审查元素查看title</span>
+      <h3>v-model 原理</h3>
+      <div>
+        <input type="text" v-model="inputVal" />
+        <div>{{inputVal}}</div>
+      </div>
+      <div>
+        <input type="checkbox" v-model="isChecked" />
+        <div>{{isChecked}}</div>
+      </div>
+      <div>
+        <select v-model="selectValue">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+        </select>
+        <div>{{selectValue}}</div>
       </div>
     </div>
-    <script src="./src/watcher.js"></script>
-    <script src="./src/Dep.js"></script>
-    <script src="./src/vnode.js"></script>
-    <script src="./src/compiler.js"></script>
-    <script src="./src/wjyvue.js"></script>
-    <script src="./src/initrender.js"></script>
-    <script src="./src/initdata.js"></script>
-    <script>
-      // 引入 watcher
-      // 问题: 解决this问题, 数组值更新时, 无法获取到vue的实例
-      // 1. 只考虑修改后刷新 (响应式)
-      // 2. 再考虑依赖收集 (优化)
 
-      let app = new WJYVue({
+    <script type="module">
+      import WJYVue from "./src/wjyvue.js";
+
+      const wjy = new WJYVue({
         el: "#app",
-        data: {
-          name: "张三",
-          age: 19,
-          course: [{ name: "fadsf" }, { name: "134" }, { name: "faqfaf" }],
+        data() {
+          return {
+            t: "t value",
+            t1: {
+              tt1: "tt1 value",
+            },
+            arr: [1, 2, 3],
+            counter: 0,
+            title: "看我",
+            inputVal: "test",
+            isChecked: true,
+            selectValue: 2,
+          };
+        },
+        methods: {
+          handleAdd() {
+            this.counter++;
+          },
+          handleMinus() {
+            this.counter--;
+          },
         },
       });
+
+      setTimeout(() => {
+        console.log("属性值为原始值时的getter, setter");
+        console.log(wjy.t);
+        wjy.t = "change t value";
+        console.log(wjy.t);
+      }, 1000);
+
+      setTimeout(() => {
+        console.log("属性的新值为对象的情况");
+        wjy.t = {
+          tt: "tt value",
+        };
+        console.log(wjy.t.tt);
+      }, 2000);
+
+      setTimeout(() => {
+        console.log("验证对深层次的 getter, setter拦截");
+        wjy.t1.tt1 = "change tt1 value";
+        console.log(wjy.t1.tt1);
+      }, 3000);
+
+      setTimeout(() => {
+        console.log("将值为对象的属性更新未原始值");
+        console.log(wjy.t1);
+        wjy.t1 = "t1 value";
+        console.log(wjy.t1);
+      }, 4000);
+
+      setTimeout(() => {
+        console.log("数组的拦截");
+        console.log(wjy.arr);
+        wjy.arr.push(4);
+        console.log(wjy.arr);
+      }, 5000);
     </script>
   </body>
 </html>

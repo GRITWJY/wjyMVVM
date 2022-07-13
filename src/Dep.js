@@ -33,7 +33,7 @@
  */
 
 let depid = 0;
-class Dep {
+export default class Dep {
   constructor() {
     this.id = depid++;
     this.subs = []; // 存储的事与当前Dep 关联的 watcher
@@ -78,13 +78,13 @@ Dep.target = null;
 let targetStack = [];
 
 /** 将当前操作的 watcher 存储到全局 watcher 中, 参数 target 就是当前的 watcher */
-function pushTarget(target) {
+export function pushTarget(target) {
   targetStack.unshift(Dep.target); // vue 源码中是 push
   Dep.target = target;
 }
 
 /**将当前 watcher 踢出*/
-function popTarget() {
+export function popTarget() {
   Dep.target = targetStack.shift(); // 踢到最后,就是Undefined
 }
 

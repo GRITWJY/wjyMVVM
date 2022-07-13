@@ -1,3 +1,7 @@
+import Watcher from "./watcher.js";
+import WJYVue from "./wjyvue.js";
+import { combine, parseVNode, generateVNode } from "./compiler.js";
+
 // 挂载方法
 WJYVue.prototype.mount = function () {
   // render: 生成虚拟DOM, 即上面说的 保存

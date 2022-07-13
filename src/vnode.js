@@ -1,5 +1,5 @@
 // 虚拟DOM
-class VNode {
+export default class VNode {
   constructor(tag, data, value, type) {
     this.tag = tag && tag.toLowerCase();
     this.data = data;
