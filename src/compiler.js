@@ -105,27 +105,6 @@ export function parseVNode(vnode, vm) {
         _node.setAttribute(attrName, attrValue);
       }
     });
-
-    // // 属性
-    // let attrs = Array.from(node.attributes);
-    //
-    // // compileVOnClick(node, vm);
-    // let _attrObj = {}; // 转成对象
-    // // debugger;
-    // for (let attr of attrs) {
-    //   const { name, value } = attr;
-    //   if (name.match(/v-on:click/)) {
-    //     compileVOn(node, value, vm);
-    //   } else if (name.match(/v-bind:/)) {
-    //     compileVBind(node, name, value, vm);
-    //   } else if (name.match(/v-model/)) {
-    //     // <input v-model="xxx"/>
-    //     compileVModel(node, value, vm);
-    //   } else {
-    //     _attrObj[name] = value;
-    //   }
-    // }
-
     // 子元素
     let children = vnode.children;
     children.forEach((subvnode) => {
