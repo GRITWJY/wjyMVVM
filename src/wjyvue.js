@@ -6,7 +6,6 @@ export default function WJYVue(options) {
     typeof options.data === "function" ? options.data() : options.data; // data属性
   this.$options = options;
   this._el = options.el;
-
   this.initData(); // 将data进行响应式转换, 进行代理
 
   if (this.$options.el) {
