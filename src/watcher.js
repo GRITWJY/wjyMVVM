@@ -6,9 +6,7 @@
 
     页面渲染由 get 方法来执行
 
-
-    我们的 watcher 实例有一个属性vm, 表示的就是 当前的 vm 的实例
-
+    我们的 watcher 实例有一个属性vm, 表示的就是 当前的 vm 的实例s
 */
 
 import { pushTarget, popTarget } from "./Dep.js";

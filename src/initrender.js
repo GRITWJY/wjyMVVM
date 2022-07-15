@@ -3,7 +3,7 @@ import WJYVue from "./wjyvue.js";
 import { combine, parseVNode, generateVNode } from "./compiler.js";
 
 // 挂载方法
-WJYVue.prototype.mount = function () {
+WJYVue.prototype.$mount = function () {
   // render: 生成虚拟DOM, 即上面说的 保存
   // 调用它时,利用抽象语法树和数据结合生成虚拟DOM
   this.render = this.createRenderFn();
@@ -37,7 +37,10 @@ WJYVue.prototype.moutComponent = function () {
 // 返回一个生成虚拟DOM的函数, 缓存抽象语法树AST(使用虚拟DOM模拟), 即用来减少解析模板的次数
 //
 WJYVue.prototype.createRenderFn = function () {
+  // 生成带 {{}} 的模板
   let ast = generateVNode(this._template);
+
+  // 返回的 render 主要操作时: 把值与{{}}结合
   return function render() {
     let _tmp = combine(ast, this._data);
     return _tmp;
@@ -47,6 +50,6 @@ WJYVue.prototype.createRenderFn = function () {
 WJYVue.prototype.update = function (vnode) {
   // 简化，直接生成HTML DOM ，replaceChild 到页面中
   // 父元素replaceChild
-  let realDOM = parseVNode(vnode);
+  let realDOM = parseVNode(vnode, this);
   this._parent.replaceChild(realDOM, document.querySelector(this._el));
 };

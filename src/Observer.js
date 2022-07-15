@@ -49,13 +49,10 @@ export function defineReactive(data, key, value) {
 
   let childOb = observe(value);
 
-  // dep.__$propName__ = key;
-
   Object.defineProperty(data, key, {
     configurable: true,
     enumerable: true,
     get() {
-      //
       dep.depend();
       if (childOb) {
         childOb.dep.depend();
