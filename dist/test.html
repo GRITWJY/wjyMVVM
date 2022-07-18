@@ -1,46 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>index2</title>
-  </head>
-  <body>
-    <div id="app">
-      <h3>数据响应式更新 原理</h3>
-      <div>{{t}}</div>
-      <div>{{t1}}</div>
-      <div>{{arr}}</div>
-
-      <h3>Method + 事件 + 数据响应式更新 原理</h3>
-      <div>
-        <p>{{counter}}</p>
-        <button v-on:click="handleAdd">Add</button>
-        <button v-on:click="handleMinus">Minus</button>
-      </div>
-      <h3>v-bind</h3>
-      <span v-bind:title="title">右键审查元素查看title</span>
-      <h3>v-model 原理</h3>
-      <div>
-        <input type="text" v-model="inputVal" />
-        <div>{{inputVal}}</div>
-      </div>
-      <div>
-        <input type="checkbox" v-model="isChecked" />
-        <div>{{isChecked}}</div>
-      </div>
-      <div>
-        <select v-model="selectValue">
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4</option>
-        </select>
-        <div>{{selectValue}}</div>
-      </div>
-    </div>
-
-    <script>
-      const wjy = new WJYVue({
+<!doctype html><html lang="en"><head><meta charset="UTF-8"/><title>index2</title><script src="wjyvue.js"></script></head><body><div id="app"><h3>数据响应式更新 原理</h3><div>{{t}}</div><div>{{t1}}</div><div>{{arr}}</div><h3>Method + 事件 + 数据响应式更新 原理</h3><div><p>{{counter}}</p><button v-on:click="handleAdd">Add</button> <button v-on:click="handleMinus">Minus</button></div><h3>v-bind</h3><span v-bind:title="title">右键审查元素查看title</span><h3>v-model 原理</h3><div><input v-model="inputVal"/><div>{{inputVal}}</div></div><div><input type="checkbox" v-model="isChecked"/><div>{{isChecked}}</div></div><div><select v-model="selectValue"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select><div>{{selectValue}}</div></div></div><script>const wjy = new WJYVue({
         el: "#app",
         data() {
           return {
@@ -99,7 +57,4 @@
         console.log(wjy.arr);
         wjy.arr.push(4);
         console.log(wjy.arr);
-      }, 5000);
-    </script>
-  </body>
-</html>
+      }, 5000);</script></body></html>

@@ -17,3 +17,5 @@ export default function WJYVue(options) {
 WJYVue.prototype.$mount = function () {
   mount(this);
 };
+
+global.WJYVue = WJYVue;

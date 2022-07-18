@@ -1,4 +1,4 @@
-import compileToFuntion from "./compileToFunction.js";
+import compileToFunction from "./compileToFunction.js";
 export default function mount(vm) {
   if (!vm.$options.render) {
     // 配置项上没有 render 函数, 则进行编译
