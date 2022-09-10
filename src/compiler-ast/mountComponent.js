@@ -20,5 +20,16 @@ Vue.prototype._render = function () {
  * @private
  */
 Vue.prototype._update = function (vnode) {
-  console.log(vnode);
+  // 获取旧的 vnode 节点
+  const prevVNode = this._vnode;
+
+  // 设置新的 vnode
+  this._vnode = vnode;
+
+  if (!prevVNode) {
+    // 老的 VNode 不存在， 说明是首次渲染
+    this.$el = this.__patch__(this.$el, vnode);
+  } else {
+    this.$el = this.__patch__(prevVNode, vnode);
+  }
 };

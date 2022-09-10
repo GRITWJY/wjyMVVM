@@ -16,7 +16,7 @@ function genElement(el) {
   const { tag, rawAttr, attr } = el;
   const attrs = { ...rawAttr, ...attr };
   const children = genChildren(el);
-  return `_c('${tag}','${JSON.stringify(attrs)}', [${children}])`;
+  return `_c('${tag}',${JSON.stringify(attrs)}, [${children}])`;
 }
 
 /**

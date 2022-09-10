@@ -198,7 +198,7 @@ export default function parse(template) {
    * @param curEle
    */
   function processVBind(curEle, bindKey, bindValue) {
-    curEle.attr.VBind = { [bindKey]: bindValue };
+    curEle.attr.vBind = { [bindKey]: bindValue };
   }
 
   /**
@@ -206,7 +206,7 @@ export default function parse(template) {
    * @param curEle
    */
   function processVOn(curEle, vOnKey, vOnValue) {
-    curEle.attr.VOn = { [vOnKey]: vOnValue };
+    curEle.attr.vOn = { [vOnKey]: vOnValue };
   }
 
   /**

@@ -1,6 +1,7 @@
 import "./initData.js";
 import mount from "./compiler-ast/index";
 import renderHelper from "./compiler-ast/renderHelper";
+import patch from "./compiler-ast/patch";
 
 export default function WJYVue(options) {
   this._data =
@@ -9,6 +10,7 @@ export default function WJYVue(options) {
   this._el = options.el;
   this.initData(); // 将data进行响应式转换, 进行代理
   renderHelper(this);
+  this.__patch__ = patch;
 
   if (this.$options.el) {
     this.$mount(); // 挂载

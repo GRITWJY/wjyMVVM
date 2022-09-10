@@ -11,7 +11,8 @@ export default function mount(vm) {
       template = template;
     } else if (el) {
       // 存在挂载点
-      template = document.querySelector(el).outerHTML;
+      vm.$el = document.querySelector(el);
+      template = vm.$el.outerHTML;
     }
 
     // 生成渲染函数
