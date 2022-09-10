@@ -5,7 +5,7 @@
 export default function generate(el) {
   const renderStr = genElement(el);
   // 转换成可执行函数， 并用 with 为渲染函数扩展作用域链
-  return new Function(`with(this) { return ${renderStr}`);
+  return new Function(`with(this) { return ${renderStr}}`);
 }
 
 /**

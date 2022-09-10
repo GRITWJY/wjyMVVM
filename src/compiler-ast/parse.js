@@ -104,7 +104,7 @@ export default function parse(template) {
     for (const attr of attrs) {
       // id="app"
       const [attrName, attrValue] = attr.split("=");
-      attrMap[attrName] = attrValue;
+      attrMap[attrName] = attrValue.replace(/"/g, "");
     }
     return attrMap;
   }

@@ -1,4 +1,5 @@
 import compileToFunction from "./compileToFunction.js";
+import mountComponent from "./mountComponent";
 export default function mount(vm) {
   if (!vm.$options.render) {
     // 配置项上没有 render 函数, 则进行编译
@@ -19,4 +20,6 @@ export default function mount(vm) {
     // 将渲染函数挂载到 $options 上
     vm.$options.render = render;
   }
+
+  mountComponent(vm);
 }
