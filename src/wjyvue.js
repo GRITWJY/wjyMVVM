@@ -1,5 +1,5 @@
 import "./initData.js";
-import mount from "./compiler/compiler.js";
+import mount from "./compiler-ast/index";
 
 export default function WJYVue(options) {
   this._data =

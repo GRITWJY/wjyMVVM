@@ -23,6 +23,7 @@ export default function parse(template) {
     const startIdx = html.indexOf("<");
     // 匹配到正常标签, 如 <div id = "app"></div>
     if (startIdx === 0) {
+      // 看是否是结束标签， 否则就是开始标签
       if (html.indexOf("</") === 0) {
         // 结束标签
         parseEnd();
@@ -60,7 +61,7 @@ export default function parse(template) {
     // 找到 content 中的第一个空格
     const firstSpaceIdx = content.indexOf(" ");
     if (firstSpaceIdx === -1) {
-      // 没有找到空格, 说明标签没有属性
+      // 没有找到空格, 说明标签没有属性，如 <h3></h3>
       tagName = content;
     } else {
       tagName = content.slice(0, firstSpaceIdx);
@@ -68,13 +69,17 @@ export default function parse(template) {
       attrStr = content.slice(firstSpaceIdx + 1);
     }
 
+    //----已经获取到标签名和属性字符串
+
     // 处理属性
     // ['id="app"', 'class="test"']
     const attrs = attrStr ? attrStr.split(" ") : [];
+
     // 进一步处理属性数组, 得到一个map对象
     const attrMap = parseAttrs(attrs);
     // 生成AST
     const elementAST = generateAST(tagName, attrMap);
+
     if (!root) {
       // 说明吸纳着处理的标签是最开始的第一个标签
       root = elementAST;
@@ -90,7 +95,8 @@ export default function parse(template) {
   }
 
   /**
-   * 得到 key, value 形式的 Map 对象
+   * 得到 key, value 形式的 Map 对象,
+   * 还有一些 v-for, v-bind等指令就在这里面处理
    * @param attrs
    */
   function parseAttrs(attrs) {
@@ -142,26 +148,72 @@ export default function parse(template) {
   function processElement() {
     // 弹出栈顶元素, 进一步处理该元素
     const curEle = stack.pop();
-    // 进一步处理 AST 对象中的 rawAttr 对象, { attrName: attrValue }
+    // 进一步处理 AST 对象中的 rawAttr 对象, { attrName: attrValue }, 处理结果放到attr属性
     const { rawAttr } = curEle;
+    curEle.attr = {};
     // ['v-model', 'v-bind:title', 'v-on:click']
     const propertyArr = Object.keys(rawAttr);
     if (propertyArr.includes("v-model")) {
       // 处理 v-model 指令
       processVModel(curEle);
     } else if (propertyArr.find((item) => item.match(/v-bind:(.*)/))) {
-      processVBind();
+      // 返回这个元素
+      processVBind(curEle, RegExp.$1, rawAttr[`v-bind:${RegExp.$1}`]);
     } else if (propertyArr.find((item) => item.match(/v-on:(.*)/))) {
-      processVOn();
-    } else {
-      // 处理普通属性
+      processVOn(curEle, RegExp.$1, rawAttr[`v-on:${RegExp.$1}`]);
     }
+    // 节点处理完属性后， 建立与父节点的联系
+    const stackLen = stack.length;
+    if (stackLen) {
+      stack[stackLen - 1].children.push(curEle);
+      curEle.parent = stack[stackLen - 1];
+    }
+  }
+
+  /**
+   * 处理v-model属性
+   * <input type='text' v-model="test" />
+   * @param curEle
+   */
+  function processVModel(curEle) {
+    const { tag, attr, rawAttr } = curEle;
+    const { type, "v-model": vModelValue } = rawAttr;
+
+    if (tag === "input") {
+      if (/text/.test(type)) {
+        // 文本输入框
+        attr.vModel = { tag, type: "text", value: vModelValue };
+      } else if (/checkbox/.test(type)) {
+        attr.vModel = { tag, type: "checkbox", value: vModelValue };
+      }
+    } else if (tag === "textarea") {
+      attr.vModel = { tag, value: vModelValue };
+    } else if (tag === "select") {
+      attr.vModel = { tag, value: vModelValue };
+    }
+  }
+
+  /**
+   * 处理v-bind属性
+   * @param curEle
+   */
+  function processVBind(curEle, bindKey, bindValue) {
+    curEle.attr.VBind = { [bindKey]: bindValue };
+  }
+
+  /**
+   * 处理v-on属性
+   * @param curEle
+   */
+  function processVOn(curEle, vOnKey, vOnValue) {
+    curEle.attr.VOn = { [vOnKey]: vOnValue };
   }
 
   /**
    * 处理标签内文本
    */
   function processChars(text) {
+    // 去空格
     if (!text.trim()) return;
 
     // 构造文本节点的 AST 对象

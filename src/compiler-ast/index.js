@@ -2,8 +2,9 @@ import compileToFunction from "./compileToFunction.js";
 export default function mount(vm) {
   if (!vm.$options.render) {
     // 配置项上没有 render 函数, 则进行编译
-    let template = "";
-    const { el, template } = vm.$options;
+    let { el, template } = vm.$options;
+
+    // 获取模板字符串
     if (template) {
       // 存在 template 选项
       template = template;
