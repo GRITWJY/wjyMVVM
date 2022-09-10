@@ -3,12 +3,13 @@
  * @param oldVnode
  * @param vnode
  */
-export default function patch(oldVnode, vnode) {
-  console.log(oldVnode);
-  console.log(vnode);
+import { isReserveTag } from "../utils";
+import WJYVue from "../wjyvue";
 
+export default function patch(oldVnode, vnode) {
   if (!oldVnode) {
     //  说明是子组件首次渲染
+    createElm(vnode);
   } else if (oldVnode.nodeType) {
     // 说明是真实节点， 首次渲染根组件
     const parent = oldVnode.parentNode;
@@ -73,7 +74,30 @@ function createElm(vnode, parent, referNode) {
   }
 }
 
-function createComponent() {}
+/**
+ * 创建一个自定义组件
+ * @param vnode
+ */
+function createComponent(vnode) {
+  if (vnode.tag && !isReserveTag(vnode.tag)) {
+    // 获取组件的基本信息
+    const {
+      tag,
+      context: {
+        $options: { components },
+      },
+    } = vnode;
+    const compOptions = components[tag];
+    // 直接通过 new Vue ， 源码中是 extend方法
+    const compIns = new WJYVue(compOptions);
+    // 把父组件的 vnode 放到子组件的实例上
+    compIns.$mount();
+    // 记录字组件 vnode 的父节点信息
+    // compIns._vnode.parent = vnode.parent;
+    // 将子组件添加到父节点内
+    vnode.parent.appendChild(compIns._vnode.elm);
+  }
+}
 
 /**
  * 创建文本节点

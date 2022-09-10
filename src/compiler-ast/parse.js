@@ -38,8 +38,8 @@ export default function parse(template) {
       if (stack.length) {
         // stack 不为空, 说明文本是栈顶元素的文本节点
         processChars(html.slice(0, nextStartIdx));
-        html = html.slice(nextStartIdx);
       }
+      html = html.slice(nextStartIdx);
     }
   }
 
