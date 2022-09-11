@@ -19,6 +19,7 @@ export function isReserveTag(tagName) {
     "option",
     "p",
     "button",
+    "template",
   ];
   return reserveTag.includes(tagName);
 }

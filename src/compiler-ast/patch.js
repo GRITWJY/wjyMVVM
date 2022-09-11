@@ -91,6 +91,7 @@ function createComponent(vnode) {
     // 直接通过 new Vue ， 源码中是 extend方法
     const compIns = new WJYVue(compOptions);
     // 把父组件的 vnode 放到子组件的实例上
+    compIns._parentVnode = vnode;
     compIns.$mount();
     // 记录字组件 vnode 的父节点信息
     // compIns._vnode.parent = vnode.parent;

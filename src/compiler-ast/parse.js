@@ -162,11 +162,34 @@ export default function parse(template) {
     } else if (propertyArr.find((item) => item.match(/v-on:(.*)/))) {
       processVOn(curEle, RegExp.$1, rawAttr[`v-on:${RegExp.$1}`]);
     }
+
+    // 处理插槽内容
+    processSlotContent(curEle);
+
     // 节点处理完属性后， 建立与父节点的联系
     const stackLen = stack.length;
     if (stackLen) {
       stack[stackLen - 1].children.push(curEle);
       curEle.parent = stack[stackLen - 1];
+
+      // 如果节点存在 slotName, 说明该节点时组件传递给插槽的内容
+      // 将插槽信息放到组件节点的 rawAttr.scopedSlots 对象上
+      if (curEle.slotName) {
+        const { parent, slotName, scopeSlot, children } = curEle;
+        const slotInfo = {
+          slotName,
+          scopeSlot,
+          children: children.map((item) => {
+            delete item.parent;
+            return item;
+          }),
+        };
+        if (parent.rawAttr.scopedSlots) {
+          parent.rawAttr.scopedSlots[curEle.slotName] = slotInfo;
+        } else {
+          parent.rawAttr.scopedSlots = { [curEle.slotName]: slotInfo };
+        }
+      }
     }
   }
 
@@ -229,5 +252,32 @@ export default function parse(template) {
 
     // 将文本节点放到栈顶元素的child里
     stack[stack.length - 1].children.push(textAST);
+  }
+}
+
+/**
+ * <scope-slot>
+ *   <template v-slot:default="scopeSlot">
+ *     <div>{{ scopeSlot }}</div>
+ *   </template>
+ * </scope-slot>
+ * @param {*} el 节点的 AST 对象
+ */
+function processSlotContent(el) {
+  // 具有 v-slot:xx 属性的 template 只能是组件的根元素，
+  if (el.tag === "template") {
+    // 属性 Map 对象
+    const attrMap = el.rawAttr;
+    // 遍历 Map 对象， 找出其中 v-slot 指令的信息
+    for (const key in attrMap) {
+      if (key.match(/v-slot:(.*)/)) {
+        // 说明标签上存在 v-slot指令
+        // 获取插槽名称
+        const slotName = (el.slotName = RegExp.$1);
+        // 获取作用域插槽的值
+        el.scopeSlot = attrMap[`v-slot:${slotName}`];
+        // 因为标签上只能有一个 v-slot 指令
+      }
+    }
   }
 }
